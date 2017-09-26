@@ -5,23 +5,18 @@ import { isEmail } from 'validator';
 const userSchema = new Schema({
     username: {
         type: Types.String,
-        validate: [
-            {
-                validator: value => value.length > 6,
-                message: '{VALUE} is short!'
-            }
-        ],
-        required: true
+        minlength: 6,
+        maxlength: 24,
+        required: true,
+        lowercase: true,
+        trim: true
     },
     password: {
         type: Types.String,
-        validate: [
-            {
-                validator: value => value.length > 6,
-                message: '{VALUE} is short!'
-            }
-        ],
-        required: true
+        minlength: 6,
+        maxlength: 24,
+        required: true,
+        trim: true
     },
     email: {
         type: Types.String,
