@@ -1,48 +1,24 @@
-import passport from 'passport';
-
 import Router from '../extensions/router';
 
-import UsersController from './users-controller';
-import ArticlesController from './articles-controller';
+import isBearerAuthenticate from '../middlewares/is-bearer-authenticate';
 
-function isBearerAuthenticate(req, res, next) {
-    passport.authenticate('bearer', { session: false }, (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
-
-        if (!user) {
-            return res.status(401).json({
-                status: false,
-                message: 'Incorrect token.'
-            });
-        }
-
-        if (!req.isAuthenticated()) {
-            return res.status(403).json({
-                status: false,
-                message: 'Not authenticated.'
-            });
-        }
-
-        next();
-    })(req, res, next);
-}
+import UsersRouter from './users';
+import ArticlesRouter from './articles';
+import SecurityRouter from './security';
 
 export default class Index extends Router {
-    get root() {
+    get path() {
         return '/';
     }
 
     get routes() {
         return [
-            ['use', UsersController],
-            ['use', ArticlesController],
+            ['use', UsersRouter],
+            ['use', ArticlesRouter],
+            ['use', SecurityRouter],
 
             ['get', '/', this.actionIndex],
-            ['post', '/login', this.actionLogin],
-            ['get', '/logout', this.actionLogout],
-            ['get', '/secure', isBearerAuthenticate, this.actionSecure],
+            ['get', '/security', isBearerAuthenticate, this.actionSecure],
         ];
     }
 
@@ -57,56 +33,9 @@ export default class Index extends Router {
         });
     }
 
-    actionLogin(req, res, next) {
-        passport.authenticate('local', (err, user, info) => {
-            if (err) {
-                return next(err);
-            }
-
-            if (!user) {
-                return res.json({
-                    status: false,
-                    message: info.message
-                });
-            }
-
-            req.login(user, (err) => {
-                if (err) {
-                    return next(err);
-                }
-
-                res.json({
-                    status: true,
-                    user: req.user,
-                    isAuthenticated: req.isAuthenticated(),
-                    message: 'Login',
-                    token: user.token
-                });
-            });
-        })(req, res, next);
-    }
-
-    actionLogout(req, res) {
-        if (!req.isAuthenticated()) {
-            return res.json({
-                status: false,
-                message: 'You are not logged in.'
-            });
-        }
-
-        req.logout();
-
-        res.json({
-            status: true,
-            user: req.user,
-            isAuthenticated: req.isAuthenticated(),
-            message: 'Logout'
-        });
-    }
-
     actionSecure(req, res) {
         res.json({
-            message: 'Secure'
+            message: 'Security'
         });
     }
 }

@@ -39,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/', new Index());
+app.use('/', new Index().router);
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
@@ -52,7 +52,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     res.status(err.status || 500);
 
-    res.render('error', {
+    res.json({
         message: err.message,
         error: req.app.get('env') === 'development' ? err : {}
     });

@@ -1,10 +1,18 @@
 import Router from '../extensions/router';
 
+import isBearerAuthenticate from '../middlewares/is-bearer-authenticate';
+
 import Article from '../models/article';
 
-export default class ArticlesController extends Router {
-    get root() {
+export default class ArticlesRouter extends Router {
+    get path() {
         return '/articles';
+    }
+
+    get middlewares() {
+        return [
+            isBearerAuthenticate
+        ]
     }
 
     get routes() {

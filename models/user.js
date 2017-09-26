@@ -14,7 +14,7 @@ const userSchema = new Schema({
     password: {
         type: Types.String,
         minlength: 6,
-        maxlength: 24,
+        maxlength: 64,
         required: true,
         trim: true
     },

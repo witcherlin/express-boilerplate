@@ -1,8 +1,12 @@
 import express from 'express';
 
 export default class Router {
-    get root() {
+    get path() {
         return '/';
+    }
+
+    get middlewares() {
+        return []
     }
 
     get routes() {
@@ -10,12 +14,14 @@ export default class Router {
     }
 
     constructor() {
+        const path = this.path;
+        const middlewares = this.middlewares;
         const routes = this.routes;
 
-        const rootRouter = express.Router();
+        const router = express.Router();
 
         if (!routes.length) {
-            return rootRouter;
+            return router;
         }
 
         const subRouter = express.Router();
@@ -38,18 +44,18 @@ export default class Router {
                     }
 
                     if (middleware[i].prototype instanceof Router) {
-                        middleware[i] = new middleware[i]();
+                        middleware[i] = new middleware[i]().router;
                     } else {
                         middleware[i] = middleware[i].bind(this);
                     }
                 }
 
-                subRouter[method.toLowerCase()].call(subRouter, ...middleware);
+                subRouter[method.toLowerCase()](...middleware);
             }
         });
 
-        rootRouter.use(this.root, subRouter);
+        router.use(path, ...middlewares, subRouter);
 
-        return rootRouter;
+        this.router = router;
     }
 }
