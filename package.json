@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "eslint": "./node_modules/.bin/eslint",
     "nodemon": "./node_modules/.bin/nodemon",
-    "serve": "npm run nodemon -- --ignore node_modules/ ./bin/index.js",
-    "start": "node ./bin/index.js"
+    "check": "npm run eslint -- ./",
+    "serve": "npm run check && npm run nodemon -- ./bin/index.js",
+    "start": "npm run check && node ./bin/index.js"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
@@ -26,6 +28,8 @@
     "validator": "^8.2.0"
   },
   "devDependencies": {
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.7.2",
     "nodemon": "^1.12.1"
   }
 }

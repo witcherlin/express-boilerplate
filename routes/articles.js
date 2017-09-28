@@ -12,7 +12,7 @@ export default class ArticlesRouter extends Router {
     get middlewares() {
         return [
             isBearerAuthenticate
-        ]
+        ];
     }
 
     get routes() {
@@ -107,7 +107,7 @@ export default class ArticlesRouter extends Router {
         }
     }
 
-    async actionDeleteArticleById (req, res) {
+    async actionDeleteArticleById(req, res) {
         try {
             const affected = await Article.remove({
                 _id: req.params.id
@@ -120,8 +120,8 @@ export default class ArticlesRouter extends Router {
         }
         catch (err) {
             res.json({
-               error: err.errors || err,
-               message: 'Error Delete article by id ' + req.params.id
+                error: err.errors || err,
+                message: 'Error Delete article by id ' + req.params.id
             });
         }
     }

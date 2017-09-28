@@ -6,7 +6,7 @@ export default class Router {
     }
 
     get middlewares() {
-        return []
+        return [];
     }
 
     get routes() {

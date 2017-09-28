@@ -1,8 +1,9 @@
 import http from 'http';
 
 import app from '../index';
+import config from '../config';
 
-const port = parseInt(process.env.PORT || 3000);
+const port = config.port;
 
 const server = http.createServer(app);
 
@@ -15,7 +16,7 @@ server.on('listening', () => {
 
 server.on('error', (err) => {
     if (err.syscall !== 'listen') {
-        throw error;
+        throw err;
     }
 
     const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;

@@ -12,7 +12,7 @@ export default class UsersRouter extends Router {
     get middlewares() {
         return [
             isBearerAuthenticate
-        ]
+        ];
     }
 
     get routes() {

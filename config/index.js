@@ -8,4 +8,4 @@ export default {
         secret: 'df24treftww3546gerredfds',
         expiresIn: '24h'
     }
-}
+};
