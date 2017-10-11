@@ -13,8 +13,6 @@ export default function isBearerAuthenticate(req, res, next) {
             });
         }
 
-        req.login(user, (err) => {
-            next(err);
-        });
+        req.login(user, next);
     })(req, res, next);
 }
