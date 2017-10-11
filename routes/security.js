@@ -1,6 +1,6 @@
-import uniqid from 'uniqid';
-
 import Router from '../extensions/router';
+
+import isBearerAuthenticate from '../middlewares/is-bearer-authenticate';
 
 import User from '../models/user';
 
@@ -13,7 +13,7 @@ export default class SecurityRouter extends Router {
         return [
             ['post', '/login', this.actionLogin],
             ['post', '/signup', this.actionSignup],
-            ['get', '/logout', this.actionLogout]
+            ['get', '/logout', isBearerAuthenticate, this.actionLogout]
         ];
     }
 
@@ -37,47 +37,51 @@ export default class SecurityRouter extends Router {
                 });
             }
 
-            user.token = uniqid();
+            user.token = user.generateToken();
             user = await user.save();
 
-            req.login(user, (err) => {
-                if (err) {
-                    throw err;
-                }
-
-                res.json({
-                    status: true,
-                    user: user,
-                    message: 'Login'
-                });
+            res.json({
+                user: user,
+                status: true,
+                message: 'Login success'
             });
         }
         catch (err) {
             res.json({
-                status: false,
                 error: err,
+                status: false,
                 message: 'Error Login'
             });
         }
     }
 
     async actionSignup(req, res) {
-        res.json({
-            status: true,
-            user: null,
-            message: 'Sign up'
-        });
+        try {
+            const user = await new User({
+                username: req.body.username,
+                password: req.body.password,
+                email: req.body.email,
+                phone: req.body.phone
+            }).save();
+
+            res.json({
+                user,
+                status: true,
+                message: 'Create new user'
+            });
+        }
+        catch (err) {
+            res.json({
+                error: err.errors || err,
+                status: false,
+                message: 'Error Create new user'
+            });
+        }
     }
 
     async actionLogout(req, res) {
-        if (!req.isAuthenticated()) {
-            return res.json({
-                status: false,
-                message: 'You are not logged in.'
-            });
-        }
-
         req.user.token = '';
+
         await req.user.save();
 
         req.logout();

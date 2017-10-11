@@ -13,13 +13,8 @@ export default function isBearerAuthenticate(req, res, next) {
             });
         }
 
-        if (!req.isAuthenticated()) {
-            return res.status(403).json({
-                status: false,
-                message: 'Not authenticated.'
-            });
-        }
-
-        next();
+        req.login(user, (err) => {
+            next(err);
+        });
     })(req, res, next);
 }

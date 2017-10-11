@@ -18,7 +18,7 @@ export default class Index extends Router {
             ['use', SecurityRouter],
 
             ['get', '/', this.actionIndex],
-            ['get', '/security', isBearerAuthenticate, this.actionSecure],
+            ['get', '/secure', isBearerAuthenticate, this.actionSecure],
         ];
     }
 
@@ -27,15 +27,40 @@ export default class Index extends Router {
 
         res.json({
             random: req.session.random,
-            user: req.user,
-            isAuthenticated: req.isAuthenticated(),
+            status: true,
             message: 'Index'
         });
     }
 
-    actionSecure(req, res) {
-        res.json({
-            message: 'Security'
-        });
+    async actionSecure(req, res) {
+        try {
+            const info = await req.mailer.sendMail({
+                from: '"Testtest" <testing@kirinami.com>',
+                to: '"Plaintext" <witcherlin@gmail.com>',
+                subject: 'Message title',
+                html: '<p>HTML version of the message</p>',
+                attachments:  {
+                    filename: 'license.txt',
+                    path: 'https://raw.github.com/nodemailer/nodemailer/master/LICENSE'
+                }
+            });
+
+            res.json({
+                isAuthenticated: req.isAuthenticated(),
+                user: req.user,
+                mailer: info,
+                status: true,
+                message: 'Secure'
+            });
+        }
+        catch (err) {
+            console.log(err);
+
+            res.json({
+                error: err,
+                status: false,
+                message: 'Secure error'
+            });
+        }
     }
 }

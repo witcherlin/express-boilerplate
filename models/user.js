@@ -1,4 +1,6 @@
 import bcrypt from 'bcrypt';
+import uniqid from 'uniqid';
+import shuffle from 'lodash/shuffle';
 import mongoose, { Schema, SchemaTypes as Types } from 'mongoose';
 import { isEmail } from 'validator';
 
@@ -69,6 +71,10 @@ const userSchema = new Schema({
 
 userSchema.methods.comparePassword = function (password) {
     return bcrypt.compareSync(password, this.password);
+};
+
+userSchema.methods.generateToken = function () {
+    return shuffle((uniqid() + this._id).split('')).join('');
 };
 
 userSchema.pre('save', function (next) {

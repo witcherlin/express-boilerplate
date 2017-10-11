@@ -6,6 +6,7 @@ import session from 'express-session';
 import busboy from 'connect-busboy';
 
 import config from './config';
+import mailer from './config/mailer';
 import passport from './config/passport';
 import mongoose, { MongoStore } from './config/mongoose';
 
@@ -15,6 +16,8 @@ const app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
+
+app.use(mailer());
 
 app.use(logger('dev'));
 
@@ -34,10 +37,17 @@ app.use(session({
     })
 }));
 
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+    next();
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', new Index().router);
 

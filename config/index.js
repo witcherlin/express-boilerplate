@@ -7,5 +7,14 @@ export default {
     security: {
         secret: 'df24treftww3546gerredfds',
         expiresIn: '24h'
+    },
+    mailer: {
+        host: 'smtp.zoho.eu',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'testing@kirinami.com',
+            pass: 'kirinami'
+        }
     }
 };
