@@ -64,6 +64,14 @@ const userSchema = new Schema({
     }],
     token: {
         type: Types.String
+    },
+    code: {
+        type: Types.String
+    },
+    status: {
+        type: Types.String,
+        enum: ['unconfirmed', 'forgotten', 'active'],
+        default: 'unconfirmed'
     }
 }, {
     timestamps: true

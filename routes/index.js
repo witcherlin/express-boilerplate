@@ -18,7 +18,8 @@ export default class Index extends Router {
             ['use', SecurityRouter],
 
             ['get', '/', this.actionIndex],
-            ['get', '/secure', isBearerAuthenticate, this.actionSecure],
+            ['get', '/check', this.actionCheck],
+            ['get', '/secure', isBearerAuthenticate, this.actionSecure]
         ];
     }
 
@@ -29,6 +30,12 @@ export default class Index extends Router {
             random: req.session.random,
             status: true,
             message: 'Index'
+        });
+    }
+
+    actionCheck(req, res) {
+        res.render('check', {
+            title: 'Success'
         });
     }
 

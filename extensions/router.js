@@ -35,22 +35,32 @@ export default class Router {
                 throw new Error('Undefined router key');
             }
 
-            const [method, ...middleware] = route;
+            const [method, ...actions] = route;
 
-            if (middleware.length) {
-                for (let i = 0; i < middleware.length; i++) {
-                    if (typeof middleware[i] !== 'function') {
+            if (actions.length) {
+                for (let i = 0; i < actions.length; i++) {
+                    if (typeof actions[i] !== 'function') {
                         continue;
                     }
 
-                    if (middleware[i].prototype instanceof Router) {
-                        middleware[i] = new middleware[i]().router;
+                    if (actions[i].prototype instanceof Router) {
+                        actions[i] = new actions[i]().router;
                     } else {
-                        middleware[i] = middleware[i].bind(this);
+                        const fn = actions[i].bind(this);
+
+                        actions[i] = (...args) => {
+                            const action = fn(...args);
+
+                            if (args.length >= 3 && action instanceof Promise) {
+                                const next = args.length === 4 ? args[3] : args[2];
+
+                                action.catch(err => next(err));
+                            }
+                        };
                     }
                 }
 
-                subRouter[method.toLowerCase()](...middleware);
+                subRouter[method.toLowerCase()](...actions);
             }
         });
 

@@ -60,11 +60,12 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    res.status(err.status || 500);
+    console.error(err);
 
-    res.json({
+    res.status(err.status || 500).json({
         message: err.message,
-        error: req.app.get('env') === 'development' ? err : {}
+        status: false,
+        error: req.app.get('env') === 'development' ? err.errors || err : {}
     });
 });
 
