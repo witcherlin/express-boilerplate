@@ -17,6 +17,7 @@ export default class SecurityRouter extends Router {
             ['post', '/signup', this.actionSignup],
             ['get', '/logout', isBearerAuthenticate, this.actionLogout],
             ['post', '/reset', this.actionReset],
+            ['post', '/confirm', this.actionConfirm],
             ['post', '/verify/:action/:code', this.actionVerify]
         ];
     }
@@ -61,7 +62,7 @@ export default class SecurityRouter extends Router {
 
     async actionSignup(req, res, next) {
         const { username, password, email, phone } = req.body;
-        const code = uniqid();
+        const code = uniqid().slice(-5);
 
         const user = await new User({ username, password, email, phone, code }).save();
 
@@ -110,7 +111,7 @@ export default class SecurityRouter extends Router {
 
         let user = await User.findOne({ email });
 
-        user.code = uniqid();
+        user.code = uniqid().slice(-5);
         user.status = 'forgotten';
 
         user = await user.save();
@@ -129,6 +130,48 @@ export default class SecurityRouter extends Router {
                 res.json({
                     status: true,
                     message: 'Confirm reset password'
+                });
+            }).catch(next);
+        });
+    }
+
+    async actionConfirm(req, res, next) {
+        const { email, password } = req.body;
+
+        let user = await User.findOne({ email, status: 'unconfirmed' });
+
+        if (!user) {
+            return res.json({
+                status: false,
+                message: 'Incorrect email.'
+            });
+        }
+
+        if (!user.comparePassword(password)) {
+            return res.json({
+                status: false,
+                message: 'Incorrect password.'
+            });
+        }
+
+        user.code = uniqid().slice(-5);
+
+        user = await user.save();
+
+        res.render('mailer/confirm-email', { username: user.username, code: user.code }, (err, html) => {
+            if (err) {
+                return next(err);
+            }
+
+            req.mailer.sendMail({
+                from: `"Express Boilerplate" <testing@kirinami.com>`,
+                to: `"${user.username}" <${user.email}>`,
+                subject: `Welcome to "Express Boilerplate"! Please confirm your email address`,
+                html
+            }).then(() => {
+                res.json({
+                    status: true,
+                    message: 'Send new confirm code.'
                 });
             }).catch(next);
         });
