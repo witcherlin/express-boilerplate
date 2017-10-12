@@ -44,7 +44,7 @@ export default class SecurityRouter extends Router {
             case 'unconfirmed':
                 return res.json({
                     status: false,
-                    message: 'Confirm you email'
+                    message: 'Confirm you email.'
                 });
         }
 
@@ -54,6 +54,7 @@ export default class SecurityRouter extends Router {
         res.json({
             user: user,
             status: true,
+            warning: user.status === 'forgotten' ? 'Active request to reset password.' : undefined,
             message: 'Login success'
         });
     }
@@ -165,7 +166,7 @@ export default class SecurityRouter extends Router {
                     message: 'User confirmed'
                 });
             }
-            case 'reset': {
+            case 'forgotten': {
                 if (!password) {
                     return res.json({
                         status: false,
