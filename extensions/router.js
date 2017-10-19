@@ -66,6 +66,6 @@ export default class Router {
 
         router.use(path, ...middlewares, subRouter);
 
-        this.router = router;
+        this.$router = router;
     }
 }

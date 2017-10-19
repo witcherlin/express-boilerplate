@@ -175,3 +175,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+### Custom
+public/uploads
+!public/uploads/.gitkeep

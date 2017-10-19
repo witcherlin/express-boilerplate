@@ -1,27 +1,21 @@
 import uniqid from 'uniqid';
 
-import Router from '../extensions/router';
+import { router, route } from '../extensions/router-decorator';
 
 import isBearerAuthenticate from '../middlewares/is-bearer-authenticate';
 
 import User from '../models/user';
 
-export default class SecurityRouter extends Router {
-    get path() {
-        return '/security';
+@router('/security')
+export default class SecurityRouter {
+    @route('get', '/')
+    actionIndex(req, res) {
+        res.json({
+            message: 'Security'
+        });
     }
 
-    get routes() {
-        return [
-            ['post', '/login', this.actionLogin],
-            ['post', '/signup', this.actionSignup],
-            ['get', '/logout', isBearerAuthenticate, this.actionLogout],
-            ['post', '/reset', this.actionReset],
-            ['post', '/confirm', this.actionConfirm],
-            ['post', '/verify/:action/:code', this.actionVerify]
-        ];
-    }
-
+    @route('post', '/login')
     async actionLogin(req, res) {
         let user = await User.findOne({
             email: req.body.email
@@ -60,6 +54,7 @@ export default class SecurityRouter extends Router {
         });
     }
 
+    @route('post', '/signup')
     async actionSignup(req, res, next) {
         const { username, password, email, phone } = req.body;
         const code = uniqid().slice(-5);
@@ -86,6 +81,7 @@ export default class SecurityRouter extends Router {
         });
     }
 
+    @route('post', '/logout', isBearerAuthenticate)
     async actionLogout(req, res) {
         req.user.token = '';
 
@@ -99,6 +95,7 @@ export default class SecurityRouter extends Router {
         });
     }
 
+    @route('post', '/reset')
     async actionReset(req, res, next) {
         const { email } = req.body;
 
@@ -135,6 +132,7 @@ export default class SecurityRouter extends Router {
         });
     }
 
+    @route('post', '/confirm')
     async actionConfirm(req, res, next) {
         const { email, password } = req.body;
 
@@ -177,6 +175,7 @@ export default class SecurityRouter extends Router {
         });
     }
 
+    @route('post', '/verify/:action/:code')
     async actionVerify(req, res, next) {
         const { action, code } = req.params;
         const { email, password } = req.body;

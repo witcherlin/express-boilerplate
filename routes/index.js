@@ -1,28 +1,20 @@
-import Router from '../extensions/router';
+import { router, children, route } from '../extensions/router-decorator';
 
 import isBearerAuthenticate from '../middlewares/is-bearer-authenticate';
+import uploader from '../middlewares/uploader';
 
 import UsersRouter from './users';
 import ArticlesRouter from './articles';
 import SecurityRouter from './security';
 
-export default class Index extends Router {
-    get path() {
-        return '/';
-    }
-
-    get routes() {
-        return [
-            ['use', UsersRouter],
-            ['use', ArticlesRouter],
-            ['use', SecurityRouter],
-
-            ['get', '/', this.actionIndex],
-            ['get', '/check', this.actionCheck],
-            ['get', '/secure', isBearerAuthenticate, this.actionSecure]
-        ];
-    }
-
+@router('/')
+@children(
+    UsersRouter,
+    ArticlesRouter,
+    SecurityRouter
+)
+export default class Index {
+    @route('get', '/')
     actionIndex(req, res) {
         req.session.random = req.session.random || Math.random();
 
@@ -33,41 +25,42 @@ export default class Index extends Router {
         });
     }
 
+    @route('get', '/check')
     actionCheck(req, res) {
         res.render('check', {
             title: 'Success'
         });
     }
 
+    @route('get', '/secure', isBearerAuthenticate)
     async actionSecure(req, res) {
-        try {
-            const info = await req.mailer.sendMail({
-                from: '"Testtest" <testing@kirinami.com>',
-                to: '"Plaintext" <witcherlin@gmail.com>',
-                subject: 'Message title',
-                html: '<p>HTML version of the message</p>',
-                attachments:  {
-                    filename: 'license.txt',
-                    path: 'https://raw.github.com/nodemailer/nodemailer/master/LICENSE'
-                }
-            });
+        const info = await req.mailer.sendMail({
+            from: '"Testtest" <testing@kirinami.com>',
+            to: '"Plaintext" <witcherlin@gmail.com>',
+            subject: 'Message title',
+            html: '<p>HTML version of the message</p>',
+            attachments: {
+                filename: 'license.txt',
+                path: 'https://raw.github.com/nodemailer/nodemailer/master/LICENSE'
+            }
+        });
 
-            res.json({
-                isAuthenticated: req.isAuthenticated(),
-                user: req.user,
-                mailer: info,
-                status: true,
-                message: 'Secure'
-            });
-        }
-        catch (err) {
-            console.log(err);
+        res.json({
+            isAuthenticated: req.isAuthenticated(),
+            user: req.user,
+            mailer: info,
+            status: true,
+            message: 'Secure'
+        });
+    }
 
-            res.json({
-                error: err,
-                status: false,
-                message: 'Secure error'
-            });
-        }
+    @route('post', '/files', uploader.any())
+    actionFiles(req, res) {
+        console.log('params:', req.params);
+        console.log('query:', req.query);
+        console.log('body:', req.body);
+        console.log('files:', req.files);
+
+        res.send('Ok');
     }
 }

@@ -77,12 +77,16 @@ const userSchema = new Schema({
     timestamps: true
 });
 
-userSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, this.password);
+userSchema.methods.generateCode = function (length = 5) {
+    return shuffle(uniqid().split('')).join('').slice(length);
 };
 
 userSchema.methods.generateToken = function () {
     return shuffle((uniqid() + this._id).split('')).join('');
+};
+
+userSchema.methods.comparePassword = function (password) {
+    return bcrypt.compareSync(password, this.password);
 };
 
 userSchema.pre('save', function (next) {
